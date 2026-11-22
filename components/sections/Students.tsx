@@ -177,7 +177,7 @@ export default function Students({
           {(
             [
               ["all", tx("الكل")],
-              ["noAtt", tx("لم يُحضَّروا اليوم")],
+              ["noAtt", tx("لم يسجل حضورهم اليوم")],
               ["noRec", tx("لم يُسمِّعوا اليوم")],
             ] as const
           ).map(([id, label]) => (

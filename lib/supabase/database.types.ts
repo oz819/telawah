@@ -80,6 +80,7 @@ export type Database = {
           palette: string
           primary_color: string | null
           registrations_open: boolean
+          public_page: boolean
           about: string | null
           extra_notes: string | null
           contact_phone: string | null
@@ -112,6 +113,7 @@ export type Database = {
           palette?: string
           primary_color?: string | null
           registrations_open?: boolean
+          public_page?: boolean
           about?: string | null
           extra_notes?: string | null
           contact_phone?: string | null
@@ -144,6 +146,7 @@ export type Database = {
           palette?: string
           primary_color?: string | null
           registrations_open?: boolean
+          public_page?: boolean
           about?: string | null
           extra_notes?: string | null
           contact_phone?: string | null

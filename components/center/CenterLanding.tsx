@@ -3,6 +3,8 @@
 import { useI18n, LanguageSwitch } from "@/components/LocaleProvider";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/utils/supabase/client";
 import { FacebookIcon, InstagramIcon, WhatsAppIcon } from "@/components/SocialIcons";
 import DevCredit from "@/components/landing/DevCredit";
 import LoginDialog from "@/components/center/LoginDialog";
@@ -15,8 +17,15 @@ import { accentStyle, applyPalette, whatsappLink, type PublicCenter } from "@/li
 // ("" on its own domain, "/{slug}" on the platform).
 export default function CenterLanding({ center, base }: { center: PublicCenter; base: string }) {
   const { tx, locale, dir } = useI18n();
+  const router = useRouter();
   const [showLogin, setShowLogin] = useState(false);
+  // Already signed in on this device: the login buttons go straight into the app, no code again.
+  const [signedIn, setSignedIn] = useState(false);
   useEffect(() => applyPalette(center), [center]);
+  useEffect(() => {
+    createClient().auth.getSession().then(({ data }) => setSignedIn(!!data.session)).catch(() => {});
+  }, []);
+  const login = () => (signedIn ? router.push("/app") : setShowLogin(true));
 
   const wa = whatsappLink(center.whatsapp);
   const place = [center.city, center.country].filter(Boolean).join("، ");
@@ -38,7 +47,7 @@ export default function CenterLanding({ center, base }: { center: PublicCenter; 
         </a>
         <div className="cx-nav-actions">
           <LanguageSwitch />
-          <button type="button" className="secondary" onClick={() => setShowLogin(true)} aria-haspopup="dialog">
+          <button type="button" className="secondary" onClick={login} aria-haspopup="dialog">
             {tx("تسجيل الدخول")}
           </button>
         </div>
@@ -55,7 +64,7 @@ export default function CenterLanding({ center, base }: { center: PublicCenter; 
                 <span>{tx("سجّل في الحلقات")}</span>
                 <span aria-hidden="true">←</span>
               </Link>
-              <button type="button" className="btn ghost" onClick={() => setShowLogin(true)}>
+              <button type="button" className="btn ghost" onClick={login}>
                 {tx("دخول المعلّمين والإدارة")}
               </button>
               {center.honor_enabled && (

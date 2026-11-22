@@ -3,7 +3,7 @@
 import { staffText, type Locale } from "@/lib/i18n";
 import { useI18n } from "@/components/LocaleProvider";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useApp } from "@/components/AppContext";
 import { useScope } from "@/components/FilterBar";
 import AbsenceAlerts from "@/components/AbsenceAlerts";
@@ -15,6 +15,7 @@ import { useRankingSettings } from "@/lib/rankingSettings";
 import { periodRange } from "@/lib/ranking";
 import { SECTION_LABEL, type Section } from "@/lib/filter";
 import { entryRange, type QuranRange } from "@/lib/quran";
+import { formatMeasure, measure, type ProgressUnit } from "@/lib/pages";
 import { addDays, todayStr, type Attendance, type Circle } from "@/lib/types";
 
 // 📈 اللوحة (admin): the centre at a glance, within the fixed filter. Everything is computed on
@@ -37,24 +38,26 @@ export default function Dashboard({ openStudent, openManage }: { openStudent: (i
   // Records count towards the halaqa the student was in on their day (نقل الطلاب).
   const { circleOn } = useHistoryScope();
   const everyone = s.all("students").filter((st) => st.active);
+  const [unit, setUnit] = useState<ProgressUnit>("PAGES");
+  useEffect(() => setUnit(readUnit()), []);
 
   const perCircle = useMemo(() => {
     return scopedCircles
       .map((c) => {
         const mine = students.filter((st) => st.circle_id === c.id);
-        let ayahs = 0;
+        const done: Record<ProgressUnit, number> = { PAGES: 0, SURAHS: 0, JUZ: 0, AYAHS: 0 };
         const att: Attendance[] = [];
         for (const st of everyone) {
           const ranges = (quranBy.get(st.id) ?? [])
             .filter((e) => e.track === "HIFZ" && !e.deleted_at && e.entry_date >= month.from && e.entry_date <= today && circleOn(st.id, e.entry_date) === c.id)
             .map(entryRange)
             .filter((r): r is QuranRange => !!r);
-          if (ranges.length) ayahs += mushaf.coverage(ranges);
+          if (ranges.length) for (const u of UNITS) done[u] += measure(mushaf, ranges, u);
           for (const a of attBy.get(st.id) ?? []) if (circleOn(st.id, a.att_date) === c.id) att.push(a);
         }
-        return { circle: c, count: mine.length, ayahs, week: rate(att, week.from, today), month: rate(att, month.from, today) };
+        return { circle: c, count: mine.length, done, week: rate(att, week.from, today), month: rate(att, month.from, today) };
       })
-      .filter((x) => x.count > 0 || x.ayahs > 0);
+      .filter((x) => x.count > 0 || x.done.AYAHS > 0);
   }, [scopedCircles, students, everyone, circleOn, quranBy, attBy, mushaf, month.from, week.from, today]);
 
   const all = everyone.flatMap((st) => (attBy.get(st.id) ?? []).filter((a) => inScope(circleOn(st.id, a.att_date) ?? "")));
@@ -64,7 +67,7 @@ export default function Dashboard({ openStudent, openManage }: { openStudent: (i
     .map((sec) => ({ sec, n: perCircle.filter((x) => x.circle.section === sec).reduce((a, x) => a + x.count, 0) }))
     .filter((x) => x.n > 0);
   const noSection = perCircle.filter((x) => !x.circle.section).reduce((a, x) => a + x.count, 0);
-  const byAyahs = [...perCircle].sort((a, b) => b.ayahs - a.ayahs);
+  const byDone = [...perCircle].sort((a, b) => b.done[unit] - a.done[unit]);
   const quiet = perCircle.filter((x) => !recordedToday(x.circle));
 
   // A halaqa "recorded today" when it has attendance, a hifz/recitation entry or the day's lesson.
@@ -140,7 +143,14 @@ export default function Dashboard({ openStudent, openManage }: { openStudent: (i
 
       <div className="card">
         <h3>{tx("🏫 الحلقات")}</h3>
-        <p className="muted">{tx("مرتّبة بالآيات المحفوظة هذا الشهر")}</p>
+        <p className="muted">{tx("مرتّبة بما حُفظ هذا الشهر، محسوبًا بـ:")}</p>
+        <div className="recent">
+          {UNITS.map((u) => (
+            <button key={u} className={`chip ${unit === u ? "on" : ""}`} onClick={() => setUnit(saveUnit(u))}>
+              {tx(UNIT_LABEL[u])}
+            </button>
+          ))}
+        </div>
         <div className="table-scroll">
           <table className="dash-table">
             <thead>
@@ -148,21 +158,21 @@ export default function Dashboard({ openStudent, openManage }: { openStudent: (i
                 <th>#</th>
                 <th>{tx("الحلقة")}</th>
                 <th>{tx("الطلاب")}</th>
-                <th>{tx("آيات الشهر")}</th>
+                <th>{tx(UNIT_COLUMN[unit])}</th>
                 <th>{tx("حضور الأسبوع")}</th>
                 <th>{tx("حضور الشهر")}</th>
               </tr>
             </thead>
             <tbody>
-              {byAyahs.map((x, i) => (
+              {byDone.map((x, i) => (
                 <tr key={x.circle.id}>
-                  <td>{x.ayahs > 0 ? ["🥇", "🥈", "🥉"][i] ?? i + 1 : "—"}</td>
+                  <td>{x.done[unit] > 0 ? ["🥇", "🥈", "🥉"][i] ?? i + 1 : "—"}</td>
                   <td>
                     {x.circle.name}
                     {x.circle.section && <span className="muted"> · {tx(SECTION_LABEL[x.circle.section as Section])}</span>}
                   </td>
                   <td>{x.count}</td>
-                  <td>{x.ayahs}</td>
+                  <td>{formatMeasure(x.done[unit], unit)}</td>
                   <td>{pct(x.week)}</td>
                   <td>{pct(x.month)}</td>
                 </tr>
@@ -170,7 +180,7 @@ export default function Dashboard({ openStudent, openManage }: { openStudent: (i
             </tbody>
           </table>
         </div>
-        {!byAyahs.length && <p className="muted">{tx("لا توجد حلقات فيها طلاب ضمن هذا الفرز.")}</p>}
+        {!byDone.length && <p className="muted">{tx("لا توجد حلقات فيها طلاب ضمن هذا الفرز.")}</p>}
       </div>
     </section>
   );
@@ -198,6 +208,25 @@ function Tile({ icon, label, value, progress, children }: { icon: string; label:
 }
 
 /** Present or late out of the recorded days (excused days don't count), or null with none. */
+const UNITS: ProgressUnit[] = ["PAGES", "SURAHS", "JUZ", "AYAHS"];
+const UNIT_LABEL: Record<ProgressUnit, string> = { PAGES: "الصفحات", SURAHS: "السور", JUZ: "الأجزاء", AYAHS: "الآيات" };
+const UNIT_COLUMN: Record<ProgressUnit, string> = { PAGES: "صفحات الشهر", SURAHS: "سور الشهر", JUZ: "أجزاء الشهر", AYAHS: "آيات الشهر" };
+
+// The chosen unit is remembered per device, like the appearance settings.
+const UNIT_KEY = "dashboardUnit";
+function readUnit(): ProgressUnit {
+  try {
+    const v = localStorage.getItem(UNIT_KEY) as ProgressUnit | null;
+    return v && UNITS.includes(v) ? v : "PAGES";
+  } catch {
+    return "PAGES";
+  }
+}
+function saveUnit(u: ProgressUnit): ProgressUnit {
+  try { localStorage.setItem(UNIT_KEY, u); } catch { /* Private browsing may block storage. */ }
+  return u;
+}
+
 function rate(rows: Attendance[], from: string, to: string): number | null {
   let yes = 0;
   let n = 0;

@@ -44,6 +44,8 @@ export default function StudentCard({ studentId, onClose, onTalqeen }: { student
   const [intent] = useState(() => takeCardIntent(studentId));
   const [section, setSection] = useState<Section>(intent?.tab ?? "HIFZ");
   const [editing, setEditing] = useState(false);
+  // ولي الأمر is sent once, not every day: a «👪 ولي الأمر» button beside «تعديل الطالب» opens it, with a dot until the family opens their page.
+  const [showGuardian, setShowGuardian] = useState(false);
   const [loadingHistory, setLoadingHistory] = useState(false);
   // A suggested review chosen from the map: opens the review form on that range.
   const [prefill, setPrefill] = useState<{ range: QuranRange; n: number } | null>(null);
@@ -60,6 +62,8 @@ export default function StudentCard({ studentId, onClose, onTalqeen }: { student
   }
 
   const today = todayStr();
+  const guardianLink = s.get("guardian_links", studentId);
+  const guardianUnopened = !!guardianLink && !guardianLink.last_opened_at;
   // التلقين is optional per centre (الإدارة ← قسم التلقين), and named the way the centre calls it.
   const talqeenOn = tracks.has("TALQEEN");
   const sections = SECTIONS.filter((sec) => sec.id !== "TALQEEN" || talqeenOn).map((sec) =>
@@ -127,8 +131,20 @@ export default function StudentCard({ studentId, onClose, onTalqeen }: { student
             )}
             {unsynced && <span className="badge warn" style={{ marginInlineStart: 8 }}>{tx("لم يُحفظ في الحساب بعد")}</span>}
           </div>
-          <button className={`secondary${editing ? " on" : ""}`} aria-pressed={editing} onClick={() => setEditing(true)}>
-            {tx("✏️ تعديل الطالب")}</button>
+          <div className="head-actions">
+            <button
+              type="button"
+              className={`secondary guardian-btn${showGuardian ? " on" : ""}`}
+              aria-expanded={showGuardian}
+              onClick={() => setShowGuardian((v) => !v)}
+              title={tx("ولي الأمر ورابط المتابعة")}
+            >
+              {tx("👪 ولي الأمر")}
+              {guardianUnopened && <span className="dot" title={tx("لم يفتح ولي الأمر صفحة المتابعة بعد")} />}
+            </button>
+            <button className={`secondary${editing ? " on" : ""}`} aria-pressed={editing} onClick={() => setEditing(true)}>
+              {tx("✏️ تعديل الطالب")}</button>
+          </div>
         </div>
 
         {editing && (
@@ -163,7 +179,7 @@ export default function StudentCard({ studentId, onClose, onTalqeen }: { student
           <Pos label={tx("آخر ملاحظة تربوية")} value={p.lastTarbiya ?? null} />
         </div>
 
-        <GuardianBox studentId={studentId} onEdit={() => setEditing(true)} />
+        {showGuardian && <GuardianBox studentId={studentId} onEdit={() => setEditing(true)} />}
       </div>
 
       <div className="tabs sliding">

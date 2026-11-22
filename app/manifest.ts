@@ -16,7 +16,8 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
     description: "متابعة الحفظ والتلاوة والمراجعة والحضور — تعمل بدون إنترنت",
     lang: "ar",
     dir: "rtl",
-    start_url: "/",
+    // Straight into the app; the middleware sends anyone signed out to the home page to sign in.
+    start_url: "/app",
     scope: "/",
     display: "standalone",
     orientation: "portrait",

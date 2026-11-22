@@ -377,6 +377,9 @@ a.btn.secondary{background:var(--surface-2);color:var(--g2)}
 a.btn.small{padding:6px 10px;font-size:.9em}
 .guardian-box{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-top:12px;padding:10px 12px;border-radius:12px;background:var(--surface-2);border:1px dashed var(--line)}
 .guardian-box .phone{display:inline-block;margin-inline-start:8px;font-weight:600;color:var(--muted);unicode-bidi:isolate}
+.head-actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.guardian-btn{position:relative}
+.guardian-btn .dot{position:absolute;top:-3px;inset-inline-end:-3px;width:10px;height:10px;border-radius:50%;background:#d64545;border:2px solid var(--surface)}
 .guardian{max-width:720px;margin:0 auto;padding:14px 16px 40px}
 .guardian-brand{display:flex;align-items:center;gap:12px;margin:6px 0 4px}
 .guardian-brand h1{font-family:var(--font-reem-kufi),Tahoma,sans-serif;font-size:1.25rem;margin:0;color:var(--g2)}

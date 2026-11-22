@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { redirect } from "next/navigation";
 import PublicShell from "@/components/PublicShell";
 import RegisterForm from "@/components/RegisterForm";
 import { centerBySlug } from "@/lib/centerServer";
@@ -9,7 +9,7 @@ export const metadata: Metadata = { title: "تسجيل طالب جديد", robot
 
 export default async function CenterRegisterPage({ params }: { params: Promise<{ slug: string }> }) {
   const center = await centerBySlug((await params).slug);
-  if (!center) notFound();
+  if (!center) redirect("/");
   return (
     <PublicShell center={center}>
       <RegisterForm centerSlug={center.slug} open={center.registrations_open !== false} centerName={center.name} />

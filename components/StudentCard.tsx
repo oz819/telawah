@@ -44,6 +44,8 @@ export default function StudentCard({ studentId, onClose, onTalqeen }: { student
   const [intent] = useState(() => takeCardIntent(studentId));
   const [section, setSection] = useState<Section>(intent?.tab ?? "HIFZ");
   const [editing, setEditing] = useState(false);
+  // ولي الأمر is sent once, not every day: a 👪 by the name opens it, with a dot until the family opens their page.
+  const [showGuardian, setShowGuardian] = useState(false);
   const [loadingHistory, setLoadingHistory] = useState(false);
   // A suggested review chosen from the map: opens the review form on that range.
   const [prefill, setPrefill] = useState<{ range: QuranRange; n: number } | null>(null);
@@ -60,6 +62,8 @@ export default function StudentCard({ studentId, onClose, onTalqeen }: { student
   }
 
   const today = todayStr();
+  const guardianLink = s.get("guardian_links", studentId);
+  const guardianUnopened = !!guardianLink && !guardianLink.last_opened_at;
   // التلقين is optional per centre (الإدارة ← قسم التلقين), and named the way the centre calls it.
   const talqeenOn = tracks.has("TALQEEN");
   const sections = SECTIONS.filter((sec) => sec.id !== "TALQEEN" || talqeenOn).map((sec) =>
@@ -109,7 +113,18 @@ export default function StudentCard({ studentId, onClose, onTalqeen }: { student
             <button className="link" onClick={onClose}>
               {tx("→ كل الطلاب")}</button>
             <h2 style={{ margin: "4px 0" }}>
-              {student.name} {!student.active && <span className="badge redo">{tx("مؤرشف")}</span>}
+              {student.name}{" "}
+              <button
+                type="button"
+                className={`guardian-chip${showGuardian ? " on" : ""}`}
+                aria-expanded={showGuardian}
+                onClick={() => setShowGuardian((v) => !v)}
+                title={tx("ولي الأمر ورابط المتابعة")}
+                aria-label={tx("ولي الأمر ورابط المتابعة")}
+              >
+                👪{guardianUnopened && <span className="dot" title={tx("لم يفتح ولي الأمر صفحة المتابعة بعد")} />}
+              </button>{" "}
+              {!student.active && <span className="badge redo">{tx("مؤرشف")}</span>}
             </h2>
             <span className="muted">{circle?.name ?? "—"}</span>
             {moves.length > 0 && (
@@ -163,7 +178,7 @@ export default function StudentCard({ studentId, onClose, onTalqeen }: { student
           <Pos label={tx("آخر ملاحظة تربوية")} value={p.lastTarbiya ?? null} />
         </div>
 
-        <GuardianBox studentId={studentId} onEdit={() => setEditing(true)} />
+        {showGuardian && <GuardianBox studentId={studentId} onEdit={() => setEditing(true)} />}
       </div>
 
       <div className="tabs sliding">

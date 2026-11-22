@@ -1057,5 +1057,7 @@
   "🌐 صفحة المركز العامة": "🌐 Centre’s public page",
   "صفحة بلا تسجيل دخول فيها اسم المركز وشعاره ونبذة عنه وطرق التواصل، ومنها يصل الأهل إلى نموذج التسجيل ولوحة الشرف. ما دامت مخفية يُحوَّل من يفتح رابطها إلى الصفحة الرئيسية للمنصة ولا تظهر أي معلومة عن المركز.": "A page anyone can open without signing in, with the centre’s name, logo, about text and contact details, and links for families to the registration form and the honour board. While it is hidden, anyone opening its link is sent to the platform’s home page and nothing about the centre is shown.",
   "صفحة المركز ظاهرة للجميع الآن": "The centre’s page is now visible to everyone",
-  "تم إخفاء صفحة المركز": "The centre’s page is now hidden"
+  "تم إخفاء صفحة المركز": "The centre’s page is now hidden",
+  "ولي الأمر ورابط المتابعة": "Guardian and follow-up link",
+  "لم يفتح ولي الأمر صفحة المتابعة بعد": "The guardian hasn’t opened the follow-up page yet"
 }

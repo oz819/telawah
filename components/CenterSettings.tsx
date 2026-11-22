@@ -2,7 +2,7 @@
 
 import { useI18n } from "@/components/LocaleProvider";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useApp } from "@/components/AppContext";
 import { rankingSettings, useRankingSettings } from "@/lib/rankingSettings";
 import { DEFAULT_ABSENCE_MESSAGE, absenceMessage } from "@/lib/familyMessages";
@@ -111,6 +111,65 @@ export function HonorSettings() {
           <button type="button" className="link" onClick={() => navigator.clipboard?.writeText(link).then(() => showToast(tx("تم نسخ الرابط")), () => {})}>
             {tx("نسخ")}</button>{" "}
           <a href={`/${center.slug}/honor`} target="_blank" rel="noreferrer">
+            {tx("فتح")}</a>
+        </p>
+      )}
+      {error && <p className="error-text">{tx(error)}</p>}
+    </div>
+  );
+}
+
+// صفحة المركز العامة: off by default. While off, /{slug}, its registration form and honour board all
+// send visitors to the platform's home page and nothing about the centre is shown.
+export function PublicPageSettings() {
+  const { tx } = useI18n();
+  const { supabase, showToast, center } = useApp();
+  const [on, setOn] = useState<boolean | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const link = typeof location === "undefined" ? "" : `${location.origin}/${center.slug}`;
+
+  useEffect(() => {
+    let stale = false;
+    supabase
+      .from("centers")
+      .select("public_page")
+      .eq("id", center.id)
+      .maybeSingle()
+      .then(({ data }) => !stale && setOn((v) => v ?? data?.public_page ?? false));
+    return () => {
+      stale = true;
+    };
+  }, [supabase, center.id]);
+
+  async function toggle(v: boolean) {
+    setError("");
+    setOn(v);
+    setSaving(true);
+    const { error } = await supabase.from("centers").update({ public_page: v }).eq("id", center.id);
+    setSaving(false);
+    if (error) {
+      setOn(!v);
+      return setError(error.message);
+    }
+    showToast(v ? tx("صفحة المركز ظاهرة للجميع الآن") : tx("تم إخفاء صفحة المركز"));
+  }
+
+  return (
+    <div className="card">
+      <h3>{tx("🌐 صفحة المركز العامة")}</h3>
+      <p className="small muted">
+        {tx("صفحة بلا تسجيل دخول فيها اسم المركز وشعاره ونبذة عنه وطرق التواصل، ومنها يصل الأهل إلى نموذج التسجيل ولوحة الشرف. ما دامت مخفية يُحوَّل من يفتح رابطها إلى الصفحة الرئيسية للمنصة ولا تظهر أي معلومة عن المركز.")}</p>
+      {on !== null && (
+        <label className="switch-row">
+          <input type="checkbox" checked={on} disabled={saving} onChange={(e) => toggle(e.target.checked)} />
+          {on ? tx("ظاهرة للجميع") : tx("مخفية")}
+        </label>
+      )}
+      {on && (
+        <p className="small">
+          {tx("الرابط:")} <span dir="ltr">{link}</span>{" "}
+          <a href={`/${center.slug}`} target="_blank" rel="noreferrer">
             {tx("فتح")}</a>
         </p>
       )}

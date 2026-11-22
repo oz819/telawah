@@ -1053,5 +1053,9 @@
   "آية واحدة": "1 verse",
   "لم تُسجَّل جلسات {0} لهذا الطالب بعد. سجّل جلسة للحلقة وحدّد الطلاب المشاركين ليظهر سجلّهم هنا.": "No {0} sessions recorded for this student yet. Record a circle session and select the participating students to show their records here.",
   "تسجيل جلسة {0}": "Record a {0} session",
-  "توجد علامة اقتباس غير مغلقة. صحّح البيانات قبل الاستيراد.": "There is an unclosed quotation mark. Correct the data before importing."
+  "توجد علامة اقتباس غير مغلقة. صحّح البيانات قبل الاستيراد.": "There is an unclosed quotation mark. Correct the data before importing.",
+  "🌐 صفحة المركز العامة": "🌐 Centre’s public page",
+  "صفحة بلا تسجيل دخول فيها اسم المركز وشعاره ونبذة عنه وطرق التواصل، ومنها يصل الأهل إلى نموذج التسجيل ولوحة الشرف. ما دامت مخفية يُحوَّل من يفتح رابطها إلى الصفحة الرئيسية للمنصة ولا تظهر أي معلومة عن المركز.": "A page anyone can open without signing in, with the centre’s name, logo, about text and contact details, and links for families to the registration form and the honour board. While it is hidden, anyone opening its link is sent to the platform’s home page and nothing about the centre is shown.",
+  "صفحة المركز ظاهرة للجميع الآن": "The centre’s page is now visible to everyone",
+  "تم إخفاء صفحة المركز": "The centre’s page is now hidden"
 }

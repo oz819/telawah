@@ -30,6 +30,8 @@ export type PublicCenter = {
   locale: "ar" | "en";
   honor_enabled: boolean;
   registrations_open?: boolean;
+  /** Off by default: a private centre answers with only its slug and public_page = false. */
+  public_page?: boolean;
   extra_notes?: string | null;
 };
 

@@ -10,7 +10,7 @@ import { confirmDialog } from "@/components/ConfirmDialog";
 import { adminSoftDelete } from "@/lib/adminDelete";
 import { PROFILE_COLUMNS, store, useStore } from "@/lib/offline/store";
 import { SECTIONS, SECTION_LABEL, effectiveFilter, filterLabel, filterOptions, teacherTitle } from "@/lib/filter";
-import CenterSettings, { HonorSettings } from "@/components/CenterSettings";
+import CenterSettings, { HonorSettings, PublicPageSettings } from "@/components/CenterSettings";
 import Registrations from "@/components/Registrations";
 import ExportExcel from "@/components/ExportExcel";
 import CenterProfile from "@/components/center/CenterProfile";
@@ -41,6 +41,7 @@ export default function Manage({ openLog }: { openLog: (log: "audit" | "trash") 
       <ArabicBooks />
       <CenterSettings />
       <TalqeenSetting />
+      <PublicPageSettings />
       <HonorSettings />
       <ExportExcel />
       <CenterProfile />

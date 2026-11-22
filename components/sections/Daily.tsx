@@ -72,7 +72,7 @@ export default function Daily({ onOpen }: { onOpen: (id: string) => void }) {
           {(
             [
               ["all", tx("الكل")],
-              ["noAtt", tx("لم يُحضَّروا")],
+              ["noAtt", tx("لم يسجل حضورهم")],
               ["noRec", tx("لم يسمّعوا")],
             ] as const
           ).map(([id, label]) => (

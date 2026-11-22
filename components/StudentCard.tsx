@@ -44,7 +44,7 @@ export default function StudentCard({ studentId, onClose, onTalqeen }: { student
   const [intent] = useState(() => takeCardIntent(studentId));
   const [section, setSection] = useState<Section>(intent?.tab ?? "HIFZ");
   const [editing, setEditing] = useState(false);
-  // ولي الأمر is sent once, not every day: a 👪 by the name opens it, with a dot until the family opens their page.
+  // ولي الأمر is sent once, not every day: a «👪 ولي الأمر» button beside «تعديل الطالب» opens it, with a dot until the family opens their page.
   const [showGuardian, setShowGuardian] = useState(false);
   const [loadingHistory, setLoadingHistory] = useState(false);
   // A suggested review chosen from the map: opens the review form on that range.
@@ -113,18 +113,7 @@ export default function StudentCard({ studentId, onClose, onTalqeen }: { student
             <button className="link" onClick={onClose}>
               {tx("→ كل الطلاب")}</button>
             <h2 style={{ margin: "4px 0" }}>
-              {student.name}{" "}
-              <button
-                type="button"
-                className={`guardian-chip${showGuardian ? " on" : ""}`}
-                aria-expanded={showGuardian}
-                onClick={() => setShowGuardian((v) => !v)}
-                title={tx("ولي الأمر ورابط المتابعة")}
-                aria-label={tx("ولي الأمر ورابط المتابعة")}
-              >
-                👪{guardianUnopened && <span className="dot" title={tx("لم يفتح ولي الأمر صفحة المتابعة بعد")} />}
-              </button>{" "}
-              {!student.active && <span className="badge redo">{tx("مؤرشف")}</span>}
+              {student.name} {!student.active && <span className="badge redo">{tx("مؤرشف")}</span>}
             </h2>
             <span className="muted">{circle?.name ?? "—"}</span>
             {moves.length > 0 && (
@@ -142,8 +131,20 @@ export default function StudentCard({ studentId, onClose, onTalqeen }: { student
             )}
             {unsynced && <span className="badge warn" style={{ marginInlineStart: 8 }}>{tx("لم يُحفظ في الحساب بعد")}</span>}
           </div>
-          <button className={`secondary${editing ? " on" : ""}`} aria-pressed={editing} onClick={() => setEditing(true)}>
-            {tx("✏️ تعديل الطالب")}</button>
+          <div className="head-actions">
+            <button
+              type="button"
+              className={`secondary guardian-btn${showGuardian ? " on" : ""}`}
+              aria-expanded={showGuardian}
+              onClick={() => setShowGuardian((v) => !v)}
+              title={tx("ولي الأمر ورابط المتابعة")}
+            >
+              {tx("👪 ولي الأمر")}
+              {guardianUnopened && <span className="dot" title={tx("لم يفتح ولي الأمر صفحة المتابعة بعد")} />}
+            </button>
+            <button className={`secondary${editing ? " on" : ""}`} aria-pressed={editing} onClick={() => setEditing(true)}>
+              {tx("✏️ تعديل الطالب")}</button>
+          </div>
         </div>
 
         {editing && (
